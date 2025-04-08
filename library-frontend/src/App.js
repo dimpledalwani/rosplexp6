@@ -3,10 +3,11 @@ import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 import Navbar from "./components/Navbar";
 import HomePage from "./pages/HomePage";
 import LoginPage from "./pages/LoginPage";
+import RegisterPage from "./pages/RegisterPage";
 import UserDashboard from "./components/UserDashboard";
 import AdminDashboard from "./components/AdminDashboard";
 import BookCatalog from "./components/BookCatalog";
-import Recommendations from "./components/Recommendations";
+import BookmarkedBooks from "./components/BookmarkedBooks"; // ✅ NEW
 import ProtectedRoute from "./components/ProtectedRoute";
 
 function App() {
@@ -14,12 +15,13 @@ function App() {
     <Router>
       <Navbar />
       <Routes>
-        {/* Public Routes */}
         <Route path="/" element={<HomePage />} />
         <Route path="/login" element={<LoginPage />} />
-        <Route path="/recommendations" element={<Recommendations />} />
+        <Route path="/register" element={<RegisterPage />} />
 
-        {/* Protected User Route */}
+        {/* Removed Recommendations route */}
+        {/* <Route path="/recommendations" element={<Recommendations />} /> */}
+
         <Route
           path="/user"
           element={
@@ -29,7 +31,15 @@ function App() {
           }
         />
 
-        {/* Protected Admin Routes */}
+        <Route
+          path="/bookmarked"
+          element={
+            <ProtectedRoute>
+              <BookmarkedBooks />
+            </ProtectedRoute>
+          }
+        />
+
         <Route
           path="/admin"
           element={
@@ -38,6 +48,7 @@ function App() {
             </ProtectedRoute>
           }
         />
+
         <Route
           path="/admin/books"
           element={

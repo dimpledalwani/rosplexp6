@@ -7,6 +7,7 @@ function Navbar() {
 
   const handleLogout = () => {
     localStorage.removeItem("role");
+    localStorage.removeItem("token");
     navigate("/login");
   };
 
@@ -18,6 +19,7 @@ function Navbar() {
           <li className="hover:text-gray-300">
             <Link to="/">Home</Link>
           </li>
+
           {role === "admin" && (
             <>
               <li className="hover:text-gray-300">
@@ -28,16 +30,18 @@ function Navbar() {
               </li>
             </>
           )}
+
           {role === "user" && (
             <>
               <li className="hover:text-gray-300">
                 <Link to="/user">User Dashboard</Link>
               </li>
               <li className="hover:text-gray-300">
-                <Link to="/recommendations">Recommendations</Link>
+                <Link to="/bookmarked">Bookmarked</Link>
               </li>
             </>
           )}
+
           {!role && (
             <>
               <li className="hover:text-gray-300">
@@ -48,6 +52,7 @@ function Navbar() {
               </li>
             </>
           )}
+
           {role && (
             <li className="hover:text-gray-300">
               <button onClick={handleLogout}>Logout</button>

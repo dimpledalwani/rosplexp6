@@ -1,16 +1,10 @@
 import React from "react";
 
 function Recommendations() {
-  const recommendedBooks = ["The Alchemist", "Atomic Habits", "Sapiens"];
-
   return (
-    <div className="p-6 bg-white rounded shadow">
-      <h3 className="text-2xl font-semibold mb-4">Recommended Books</h3>
-      <ul className="space-y-2">
-        {recommendedBooks.map((book, index) => (
-          <li key={index} className="text-gray-700">{book}</li>
-        ))}
-      </ul>
+    <div className="p-6">
+      <h2 className="text-2xl font-bold mb-4">Recommended Books</h2>
+      <p>Here you'll find books recommended based on your interests.</p>
     </div>
   );
 }

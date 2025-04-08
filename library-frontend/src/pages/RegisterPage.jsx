@@ -1,39 +1,56 @@
-import React from 'react';
+import React, { useState } from "react";
+import axiosInstance from "../utils/axiosInstance";
 
-const RegisterPage = () => {
-    return (
-        <div className="flex items-center justify-center min-h-screen bg-gradient-to-r from-gray-100 to-gray-300 p-6">
-            <div className="bg-white p-8 rounded-lg shadow-lg max-w-md w-full">
-                <h2 className="text-3xl font-bold text-gray-800 mb-6">Register for eLibrary Hub</h2>
-                <form>
-                    <label className="block mb-2 text-gray-700">Full Name</label>
-                    <input
-                        type="text"
-                        className="w-full p-3 mb-4 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-                        placeholder="Your full name"
-                    />
-                    <label className="block mb-2 text-gray-700">Username</label>
-                    <input
-                        type="text"
-                        className="w-full p-3 mb-4 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-                        placeholder="Choose a username"
-                    />
-                    <label className="block mb-2 text-gray-700">Password</label>
-                    <input
-                        type="password"
-                        className="w-full p-3 mb-6 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-                        placeholder="Create a password"
-                    />
-                    <button
-                        type="submit"
-                        className="w-full bg-green-600 text-white py-3 rounded-lg hover:bg-green-700 transition"
-                    >
-                        Register
-                    </button>
-                </form>
-            </div>
-        </div>
-    );
-};
+function RegisterPage() {
+  const [username, setUsername] = useState("");
+  const [password, setPassword] = useState("");
+  const [role, setRole] = useState("user"); // default role
+  const [message, setMessage] = useState("");
+
+  const handleRegister = async () => {
+    try {
+      console.log("Registering with:", { username, password, role });
+      await axiosInstance.post("/register", { username, password, role });
+      setMessage("✅ Registration successful. You can now login.");
+    } catch (error) {
+      console.error("Registration error:", error);
+      setMessage("❌ Registration failed or user already exists.");
+    }
+  };
+
+  return (
+    <div className="p-6 max-w-md mx-auto">
+      <h2 className="text-2xl font-bold mb-4">Register</h2>
+      {message && <p className="mb-2">{message}</p>}
+      <input
+        className="w-full mb-2 p-2 border"
+        placeholder="Username"
+        value={username}
+        onChange={(e) => setUsername(e.target.value)}
+      />
+      <input
+        className="w-full mb-2 p-2 border"
+        type="password"
+        placeholder="Password"
+        value={password}
+        onChange={(e) => setPassword(e.target.value)}
+      />
+      <select
+        className="w-full mb-2 p-2 border"
+        value={role}
+        onChange={(e) => setRole(e.target.value)}
+      >
+        <option value="user">User</option>
+        <option value="admin">Admin</option>
+      </select>
+      <button
+        onClick={handleRegister}
+        className="w-full bg-green-600 text-white py-2 rounded"
+      >
+        Register
+      </button>
+    </div>
+  );
+}
 
 export default RegisterPage;

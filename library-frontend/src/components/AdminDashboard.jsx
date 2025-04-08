@@ -1,42 +1,138 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
+import axiosInstance from "../utils/axiosInstance";
 
 function AdminDashboard() {
-  const [eBooks, setEBooks] = useState([
-    { id: 1, title: "The Great Gatsby", author: "F. Scott Fitzgerald" },
-    { id: 2, title: "To Kill a Mockingbird", author: "Harper Lee" },
-  ]);
+  const [books, setBooks] = useState([]);
+  const [form, setForm] = useState({
+    title: "",
+    author: "",
+    description: "",
+    isbn: "",
+  });
+  const [editingISBN, setEditingISBN] = useState(null);
 
-  const handleAddBook = () => {
-    const newBook = { id: eBooks.length + 1, title: "New eBook", author: "Unknown Author" };
-    setEBooks([...eBooks, newBook]);
+  const fetchBooks = async () => {
+    try {
+      const res = await axiosInstance.get("/books");
+      setBooks(res.data);
+    } catch (err) {
+      console.error("Error fetching books:", err);
+    }
   };
 
-  const handleDeleteBook = (id) => {
-    setEBooks(eBooks.filter((book) => book.id !== id));
+  useEffect(() => {
+    fetchBooks();
+  }, []);
+
+  const handleAddOrUpdateBook = async () => {
+    const trimmedForm = {
+      ...form,
+      isbn: form.isbn.trim(),
+    };
+
+    try {
+      if (editingISBN) {
+        await axiosInstance.put(`/books/${editingISBN.trim()}`, trimmedForm);
+        setEditingISBN(null);
+      } else {
+        await axiosInstance.post("/books", trimmedForm);
+      }
+      setForm({ title: "", author: "", description: "", isbn: "" });
+      fetchBooks();
+    } catch (err) {
+      console.error("Error saving book:", err);
+    }
+  };
+
+  const handleEdit = (book) => {
+    setForm(book);
+    setEditingISBN(book.isbn);
+  };
+
+  const handleDelete = async (isbn) => {
+    try {
+      console.log("Deleting ISBN:", `"${isbn}"`);
+      await axiosInstance.delete(`/books/${isbn.trim()}`);
+      fetchBooks();
+    } catch (err) {
+      console.error("Error deleting book:", err);
+    }
   };
 
   return (
-    <div className="p-8 bg-gray-100 min-h-screen">
-      <h2 className="text-4xl font-bold mb-6">Admin Dashboard</h2>
-      <button
-        onClick={handleAddBook}
-        className="bg-blue-600 text-white px-4 py-2 rounded mb-4 hover:bg-blue-700"
-      >
-        Add New eBook
-      </button>
-      <ul className="space-y-2">
-        {eBooks.map((book) => (
-          <li key={book.id} className="p-4 bg-white rounded shadow flex justify-between">
-            <span>{book.title} by {book.author}</span>
-            <button
-              onClick={() => handleDeleteBook(book.id)}
-              className="bg-red-600 text-white px-3 py-1 rounded hover:bg-red-700"
-            >
-              Delete
-            </button>
-          </li>
+    <div className="p-6 max-w-4xl mx-auto">
+      <h2 className="text-2xl font-bold mb-4">Admin Dashboard</h2>
+
+      <div className="mb-6 p-4 border rounded">
+        <h3 className="text-lg font-semibold mb-2">
+          {editingISBN ? "Update Book" : "Add Book"}
+        </h3>
+        <input
+          className="w-full p-2 mb-2 border"
+          placeholder="Title"
+          name="title"
+          value={form.title}
+          onChange={(e) => setForm({ ...form, title: e.target.value })}
+        />
+        <input
+          className="w-full p-2 mb-2 border"
+          placeholder="Author"
+          name="author"
+          value={form.author}
+          onChange={(e) => setForm({ ...form, author: e.target.value })}
+        />
+        <textarea
+          className="w-full p-2 mb-2 border"
+          placeholder="Description"
+          name="description"
+          value={form.description}
+          onChange={(e) => setForm({ ...form, description: e.target.value })}
+        ></textarea>
+        <input
+          className="w-full p-2 mb-2 border"
+          placeholder="ISBN"
+          name="isbn"
+          value={form.isbn}
+          onChange={(e) => setForm({ ...form, isbn: e.target.value })}
+        />
+        <button
+          onClick={handleAddOrUpdateBook}
+          className="bg-green-600 text-white py-2 px-4 rounded"
+        >
+          {editingISBN ? "Update" : "Add Book"}
+        </button>
+      </div>
+
+      <h3 className="text-xl font-semibold mb-4">Books List</h3>
+      <div className="grid grid-cols-1 gap-4">
+        {books.map((book) => (
+          <div
+            key={book.isbn}
+            className="border p-4 rounded shadow flex justify-between items-center"
+          >
+            <div>
+              <h4 className="text-lg font-bold">{book.title}</h4>
+              <p>Author: {book.author}</p>
+              <p>ISBN: {book.isbn}</p>
+              <p>{book.description}</p>
+            </div>
+            <div className="flex gap-2">
+              <button
+                onClick={() => handleEdit(book)}
+                className="bg-yellow-400 px-2 py-1 rounded text-white"
+              >
+                Edit
+              </button>
+              <button
+                onClick={() => handleDelete(book.isbn)}
+                className="bg-red-500 px-2 py-1 rounded text-white"
+              >
+                Delete
+              </button>
+            </div>
+          </div>
         ))}
-      </ul>
+      </div>
     </div>
   );
 }
