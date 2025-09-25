@@ -1,13 +1,17 @@
 import React, { useEffect, useState } from "react";
+import { useLocation } from "react-router-dom"; // 👈 for route change detection
 import axiosInstance from "../utils/axiosInstance";
 
 function AdminDashboard() {
+  const location = useLocation(); // 👈 track current route
+
   const [books, setBooks] = useState([]);
   const [form, setForm] = useState({
     title: "",
     author: "",
     description: "",
     isbn: "",
+    link: "",
   });
   const [editingISBN, setEditingISBN] = useState(null);
 
@@ -20,14 +24,16 @@ function AdminDashboard() {
     }
   };
 
+  // 🔁 Re-fetch books on route change
   useEffect(() => {
     fetchBooks();
-  }, []);
+  }, [location.pathname]);
 
   const handleAddOrUpdateBook = async () => {
     const trimmedForm = {
       ...form,
       isbn: form.isbn.trim(),
+      link: form.link.trim(),
     };
 
     try {
@@ -37,7 +43,7 @@ function AdminDashboard() {
       } else {
         await axiosInstance.post("/books", trimmedForm);
       }
-      setForm({ title: "", author: "", description: "", isbn: "" });
+      setForm({ title: "", author: "", description: "", isbn: "", link: "" });
       fetchBooks();
     } catch (err) {
       console.error("Error saving book:", err);
@@ -51,7 +57,6 @@ function AdminDashboard() {
 
   const handleDelete = async (isbn) => {
     try {
-      console.log("Deleting ISBN:", `"${isbn}"`);
       await axiosInstance.delete(`/books/${isbn.trim()}`);
       fetchBooks();
     } catch (err) {
@@ -95,6 +100,13 @@ function AdminDashboard() {
           value={form.isbn}
           onChange={(e) => setForm({ ...form, isbn: e.target.value })}
         />
+        <input
+          className="w-full p-2 mb-2 border"
+          placeholder="Book Link (optional)"
+          name="link"
+          value={form.link}
+          onChange={(e) => setForm({ ...form, link: e.target.value })}
+        />
         <button
           onClick={handleAddOrUpdateBook}
           className="bg-green-600 text-white py-2 px-4 rounded"
@@ -105,9 +117,9 @@ function AdminDashboard() {
 
       <h3 className="text-xl font-semibold mb-4">Books List</h3>
       <div className="grid grid-cols-1 gap-4">
-        {books.map((book) => (
+        {books.map((book, index) => (
           <div
-            key={book.isbn}
+            key={book.isbn || `${book.title}-${index}`} // ✅ fallback key to avoid warnings
             className="border p-4 rounded shadow flex justify-between items-center"
           >
             <div>
@@ -115,6 +127,19 @@ function AdminDashboard() {
               <p>Author: {book.author}</p>
               <p>ISBN: {book.isbn}</p>
               <p>{book.description}</p>
+              {book.link && (
+                <p>
+                  Link:{" "}
+                  <a
+                    href={book.link}
+                    className="text-blue-500 underline"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                  >
+                    View Book
+                  </a>
+                </p>
+              )}
             </div>
             <div className="flex gap-2">
               <button

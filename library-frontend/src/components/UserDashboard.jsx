@@ -4,11 +4,9 @@ import axiosInstance from "../utils/axiosInstance";
 function UserDashboard() {
   const [books, setBooks] = useState([]);
   const [searchTerm, setSearchTerm] = useState("");
-  const [bookmarks, setBookmarks] = useState([]);
 
   useEffect(() => {
     fetchBooks();
-    fetchBookmarks();
   }, []);
 
   const fetchBooks = async () => {
@@ -19,51 +17,6 @@ function UserDashboard() {
       console.error("Error fetching books:", err);
     }
   };
-
-  const fetchBookmarks = async () => {
-    try {
-      const token = localStorage.getItem("token");
-      const res = await axiosInstance.get("/bookmarks", {
-        headers: { Authorization: `Bearer ${token}` },
-      });
-      const bookmarkedIsbns = res.data.map((book) => book.isbn);
-      setBookmarks(bookmarkedIsbns);
-    } catch (err) {
-      console.error("Error fetching bookmarks:", err);
-    }
-  };
-
-  const handleBookmark = async (isbn) => {
-    try {
-      const token = localStorage.getItem("token");
-      const alreadyBookmarked = bookmarks.includes(isbn);
-
-      if (!token) {
-        console.error("No token found. Please log in again.");
-        return;
-      }
-
-      if (!alreadyBookmarked) {
-        await axiosInstance.post(
-          "/bookmark",
-          { isbn },
-          {
-            headers: { Authorization: `Bearer ${token}` },
-          }
-        );
-        setBookmarks((prev) => [...prev, isbn]);
-      } else {
-        await axiosInstance.delete(`/bookmark/${isbn}`, {
-          headers: { Authorization: `Bearer ${token}` },
-        });
-        setBookmarks((prev) => prev.filter((b) => b !== isbn));
-      }
-    } catch (err) {
-      console.error("Error bookmarking:", err.response?.data || err.message);
-    }
-  };
-
-  const isBookmarked = (isbn) => bookmarks.includes(isbn);
 
   const filteredBooks = books.filter(
     (book) =>
@@ -99,44 +52,23 @@ function UserDashboard() {
                 <p className="text-gray-700">ISBN: {book.isbn}</p>
                 <p className="mt-2 text-gray-600">{book.description}</p>
 
-                {book.fileUrl ? (
-                  <div className="flex gap-3 mt-3">
+                {book.link ? (
+                  <div className="mt-3">
                     <a
-                      href={book.fileUrl}
+                      href={book.link}
                       target="_blank"
                       rel="noopener noreferrer"
-                      className="text-blue-600 underline"
+                      className="bg-green-600 text-white px-3 py-1 rounded hover:bg-green-700 inline-block"
                     >
-                      📖 Read Book
+                      📖 Read Now
                     </a>
-                    <button
-                      onClick={() => window.open(book.fileUrl, "_blank")}
-                      className="bg-indigo-600 text-white px-3 py-1 rounded hover:bg-indigo-700"
-                    >
-                      View Book
-                    </button>
-                    <button
-                      onClick={() => window.open(book.fileUrl, "_blank")}
-                      className="bg-green-600 text-white px-3 py-1 rounded hover:bg-green-700"
-                    >
-                      Read Now
-                    </button>
                   </div>
                 ) : (
                   <p className="text-gray-400 italic mt-2">
-                    No book file available
+                    No book link available
                   </p>
                 )}
               </div>
-
-              <button
-                className={`px-3 py-1 h-fit rounded text-white ml-4 ${
-                  isBookmarked(book.isbn) ? "bg-green-600" : "bg-blue-600"
-                } hover:opacity-90`}
-                onClick={() => handleBookmark(book.isbn)}
-              >
-                {isBookmarked(book.isbn) ? "Bookmarked ✅" : "Bookmark"}
-              </button>
             </div>
           ))
         )}

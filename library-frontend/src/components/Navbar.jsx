@@ -15,7 +15,7 @@ function Navbar() {
     <nav className="bg-blue-800 p-4 text-white shadow-lg">
       <div className="container mx-auto flex justify-between items-center">
         <h1 className="text-xl font-bold">eLibrary Hub</h1>
-        <ul className="flex space-x-6">
+        <ul className="flex space-x-6 items-center">
           <li className="hover:text-gray-300">
             <Link to="/">Home</Link>
           </li>
@@ -36,9 +36,7 @@ function Navbar() {
               <li className="hover:text-gray-300">
                 <Link to="/user">User Dashboard</Link>
               </li>
-              <li className="hover:text-gray-300">
-                <Link to="/bookmarked">Bookmarked</Link>
-              </li>
+              
             </>
           )}
 
@@ -54,8 +52,13 @@ function Navbar() {
           )}
 
           {role && (
-            <li className="hover:text-gray-300">
-              <button onClick={handleLogout}>Logout</button>
+            <li>
+              <button
+                onClick={handleLogout}
+                className="bg-red-600 hover:bg-red-700 text-white px-3 py-1 rounded transition"
+              >
+                Logout
+              </button>
             </li>
           )}
         </ul>

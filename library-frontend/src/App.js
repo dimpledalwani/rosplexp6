@@ -1,3 +1,4 @@
+// src/App.js
 import React from "react";
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 import Navbar from "./components/Navbar";
@@ -7,7 +8,7 @@ import RegisterPage from "./pages/RegisterPage";
 import UserDashboard from "./components/UserDashboard";
 import AdminDashboard from "./components/AdminDashboard";
 import BookCatalog from "./components/BookCatalog";
-import BookmarkedBooks from "./components/BookmarkedBooks"; // ✅ NEW
+import BookmarkedBooks from "./pages/BookmarkedBooks"; // ✅ Correct path
 import ProtectedRoute from "./components/ProtectedRoute";
 
 function App() {
@@ -19,11 +20,8 @@ function App() {
         <Route path="/login" element={<LoginPage />} />
         <Route path="/register" element={<RegisterPage />} />
 
-        {/* Removed Recommendations route */}
-        {/* <Route path="/recommendations" element={<Recommendations />} /> */}
-
         <Route
-          path="/user"
+          path="/user-dashboard"
           element={
             <ProtectedRoute>
               <UserDashboard />
@@ -41,7 +39,7 @@ function App() {
         />
 
         <Route
-          path="/admin"
+          path="/admin-dashboard"
           element={
             <ProtectedRoute>
               <AdminDashboard />
