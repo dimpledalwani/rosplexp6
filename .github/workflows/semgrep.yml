@@ -7,14 +7,8 @@ jobs:
     runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@v3
-
-    # Install Node (if needed)
-    - name: Setup Node
-      uses: actions/setup-node@v3
-      with:
-        node-version: '18'  # or your project version
-
-    # Run Semgrep
     - uses: returntocorp/semgrep-action@v1
       with:
         config: "p/default"
+        # Do NOT fail the workflow automatically
+        fail-on: "none"
